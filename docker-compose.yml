@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  nginx:
+    image: nginx:1.15
+    container_name: nginx
+    volumes:
+      - ./:/var/www
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+    networks:
+      - my-network
+    depends_on:
+      - bottle
+  bottle:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: bottle
+    command: gunicorn --bind 0.0.0.0:8000 --workers 4 "app.create_app:success()"
+    volumes:
+      - ./:/var/www
+    networks:
+      my-network:
+        aliases:
+          - bottle-app
+
+networks:
+  my-network:
